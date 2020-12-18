@@ -1,0 +1,7 @@
+.knobs {
+    height: auto;
+    width: 500px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
