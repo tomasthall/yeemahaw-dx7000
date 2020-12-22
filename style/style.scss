@@ -1,0 +1,45 @@
+.knobs {
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    &__volume {
+        height: 100px;
+        width: 210px;
+    }
+
+    &__oscillators {
+        height: 100px;
+        width: 700px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .box {
+        padding: 10px;
+        margin: 10px;
+        border: 1px solid black;
+        border-radius: 4px;
+    }
+}
+
+.synthesizer {
+    width: 1000px;
+    height: 700px;
+    background: red;
+    border-radius: 5px;
+    font-family: 'Comic Sans MS', sans-serif;
+
+    .logo {
+        height: 50px;
+        padding: 10px;
+        color: white;
+        font-size: 40px;
+        text-align: right;
+    }
+
+    .keyboard {
+        left: 180px;
+    }
+}

@@ -6,81 +6,104 @@
     <title>Yeemahaw-DX7000</title>
   </head>
   <body>
-    Yeemahaw-DX7000
-    <div id="keyboard" class="keyboard"></div>
-    <div class="knobs">
-      <div>
-        Volume
-        <input type="range" min="0.0" max="1.0" step="0.01"
-        value="0.1" name="volume">
+    <div class="synthesizer">
+      <div class="logo">
+        Yeemahaw-DX7000
       </div>
-      <div>
-        Detune 1 oscillator
-        <input type="range" min="0.0" max="300" step="10"
-        value="0.0" name="detuneFirstOscillator">
+      <div class="knobs">
+        <div class="knobs__volume box">
+          Volume
+          <input type="range" min="0.0" max="1.0" step="0.01"
+          value="0.1" name="volume">
+          <button class="muteButton">Mute</button>
+        </div>
+        <div class="knobs__oscillators box">
+          <div class="knobs__oscillators--first">
+            Wave form 1st oscillator
+            <select name="waveformFirst">
+              <option value="sine">Sine</option>
+              <option value="square" selected>Square</option>
+              <option value="sawtooth">Sawtooth</option>
+              <option value="triangle">Triangle</option>
+            </select>
+            <div>
+              Detune 1 oscillator
+              <input type="range" min="0.0" max="300" step="10"
+              value="0.0" name="detuneFirstOscillator">
+            </div>
+          </div>
+          <div class="knobs__oscillators--second">
+            Wave form 2nd oscillator
+            <select name="waveformSecond">
+              <option value="sine">Sine</option>
+              <option value="square" selected>Square</option>
+              <option value="sawtooth">Sawtooth</option>
+              <option value="triangle">Triangle</option>
+            </select>
+            <div>
+              Detune 2 oscillator
+              <input type="range" min="0.0" max="300" step="10"
+              value="0.0" name="detuneSecondOscillator">
+            </div>
+          </div>
+        </div>
+        <div class="box">
+          Delay time
+          <input type="range" min="0.0" max="1.0" step="0.1"
+          value="0.0" name="delayTime">
+        </div>
+        <div class="box">
+          Compressor
+          <div>
+            Attack
+            <input type="range" min="0.0" max="1.0" step="0.05"
+            value="0.1" name="attack">
+          </div>
+          <div>
+            Release
+            <input type="range" min="0.0" max="1.0" step="0.05"
+            value="0.1" name="release">
+          </div>
+          <div>
+            Threshold
+            <input type="range" min="-100" max="0" step="1"
+            value="-24" name="threshold">
+          </div>
+          <div>
+            Ratio
+            <input type="range" min="1" max="20" step="1"
+            value="12" name="ratio">
+          </div>
+          <div>
+            Reduction
+            <input type="range" min="-20" max="0" step="0.05"
+            value="0" name="reduction">
+          </div>
+          <div>
+            Knee
+            <input type="range" min="0" max="40" step="1"
+            value="30" name="knee">
+          </div>
+        </div>
+        <div class="box">
+          LFO
+          <div>
+            Wave form LFO
+            <select name="lfoWaveType">
+              <option value="sine">Sine</option>
+              <option value="square" selected>Square</option>
+              <option value="sawtooth">Sawtooth</option>
+              <option value="triangle">Triangle</option>
+            </select>
+            <input name="lfoRate" type="range" min="20" max="40" value="30" step="1" />
+          </div>
+          <button class="lfoOn">Lfo ON</button>
+        </div>
       </div>
-      <div>
-        Detune 2 oscillator
-        <input type="range" min="0.0" max="300" step="10"
-        value="0.0" name="detuneSecondOscillator">
-      </div>
-      <div>
-        Wave form 1st oscillator
-        <select name="waveformFirst">
-          <option value="sine">Sine</option>
-          <option value="square" selected>Square</option>
-          <option value="sawtooth">Sawtooth</option>
-          <option value="triangle">Triangle</option>
-        </select>
-        Wave form 2nd oscillator
-        <select name="waveformSecond">
-          <option value="sine">Sine</option>
-          <option value="square" selected>Square</option>
-          <option value="sawtooth">Sawtooth</option>
-          <option value="triangle">Triangle</option>
-        </select>
-      </div>
-      <div>
-        Delay time
-        <input type="range" min="0.0" max="1.0" step="0.1"
-        value="0.0" name="delayTime">
-      </div>
-      <div>
-        Compressor
-        <div>
-          Attack
-          <input type="range" min="0.0" max="1.0" step="0.05"
-          value="0.1" name="attack">
-        </div>
-        <div>
-          Release
-          <input type="range" min="0.0" max="1.0" step="0.05"
-          value="0.1" name="release">
-        </div>
-        <div>
-          Threshold
-          <input type="range" min="-100" max="0" step="1"
-          value="-24" name="threshold">
-        </div>
-        <div>
-          Ratio
-          <input type="range" min="1" max="20" step="1"
-          value="12" name="ratio">
-        </div>
-        <div>
-          Reduction
-          <input type="range" min="-20" max="0" step="0.05"
-          value="0" name="reduction">
-        </div>
-        <div>
-          Knee
-          <input type="range" min="0" max="40" step="1"
-          value="30" name="knee">
-        </div>
-      </div>
-
+      
+      <div id="keyboard" class="keyboard"></div>
     </div>
-    
+  
     <script src="http://reverbjs.org/reverb.js"></script>
     <script src="scripts/libs/qwerty-hancock.min.js"></script>
     <script type="module" src="scripts/index.js"></script>

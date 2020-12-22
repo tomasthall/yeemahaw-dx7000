@@ -1,7 +1,55 @@
 .knobs {
-    height: auto;
-    width: 500px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+  height: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
+
+.knobs__volume {
+  height: 100px;
+  width: 210px;
+}
+
+.knobs__oscillators {
+  height: 100px;
+  width: 700px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+.knobs .box {
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid black;
+  border-radius: 4px;
+}
+
+.synthesizer {
+  width: 1000px;
+  height: 700px;
+  background: red;
+  border-radius: 5px;
+  font-family: 'Comic Sans MS', sans-serif;
+}
+
+.synthesizer .logo {
+  height: 50px;
+  padding: 10px;
+  color: white;
+  font-size: 40px;
+  text-align: right;
+}
+
+.synthesizer .keyboard {
+  left: 180px;
+}
+/*# sourceMappingURL=style.css.map */

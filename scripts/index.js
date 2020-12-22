@@ -4,13 +4,19 @@ let wavePickerFirstOscillator = document.querySelector("select[name='waveformFir
 let wavePickerSecondOscillator = document.querySelector("select[name='waveformSecond']");
 let detuneFirstOscillator = document.querySelector("input[name='detuneFirstOscillator']");
 let detuneSecondOscillator = document.querySelector("input[name='detuneSecondOscillator']");
-let delayTime = document.querySelector("input[name='delayTime']")
-let attack = document.querySelector("input[name='attack']")
-let release = document.querySelector("input[name='release']")
-let threshold = document.querySelector("input[name='threshold']")
-let knee = document.querySelector("input[name='knee']")
-let ratio = document.querySelector("input[name='ratio']")
-let reduction = document.querySelector("input[name='reduction']")
+let delayTime = document.querySelector("input[name='delayTime']");
+let attack = document.querySelector("input[name='attack']");
+let release = document.querySelector("input[name='release']");
+let threshold = document.querySelector("input[name='threshold']");
+let knee = document.querySelector("input[name='knee']");
+let ratio = document.querySelector("input[name='ratio']");
+let reduction = document.querySelector("input[name='reduction']");
+let lfoWaveType = document.querySelector("select[name='lfoWaveType']");
+let lfoRate = document.querySelector("input[name='lfoRate']");
+let muteButton = document.querySelector('.muteButton')[0];
+let lfoOnButton = document.querySelector('.lfoOn')[0];
+let muted = false;
+let lfoOn = false;
 
 const context = new AudioContext(),
   settings = {
@@ -115,3 +121,19 @@ keyboard.keyUp = function (note, frequency) {
   nodes = new_nodes;
   nodesSecond = new_second_nodes;
 };
+
+lfoOnButton.addEventListener('click', () => {
+  lfoOn = !lfoOn;
+  let lfo = context.createOscillator();
+  if(lfoOn) {
+    lfo.type = lfoWaveType;
+    lfo.frequency.value = lfoRate.value;
+    lfo.connect(masterGain);
+    lfo.start(0);
+    lfoOnButton.text = 'Lfo OFF';
+  } else {
+    lfo.stop(0);
+    lfo.disconnect();
+    lfoOnButton.text = 'Lfo ON';
+  }
+})
