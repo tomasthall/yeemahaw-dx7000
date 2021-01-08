@@ -13,10 +13,13 @@ let ratio = document.querySelector("input[name='ratio']");
 let reduction = document.querySelector("input[name='reduction']");
 let lfoWaveType = document.querySelector("select[name='lfoWaveType']");
 let lfoRate = document.querySelector("input[name='lfoRate']");
-let muteButton = document.querySelector('.muteButton')[0];
-let lfoOnButton = document.querySelector('.lfoOn')[0];
+let muteButton = document.querySelector('.muteButton');
+let lfoOnButton = document.querySelector('.lfoOn');
+let whiteNoiseButton = document.querySelector('.whiteNoiseButton');
+let pinkNoiseButton = document.querySelector('.pinkNoiseButton');
 let muted = false;
 let lfoOn = false;
+let whiteNoiseOn = false;
 
 const context = new AudioContext(),
   settings = {
@@ -35,7 +38,7 @@ const context = new AudioContext(),
 let masterGain = context.createGain();
 let nodes = [];
 let nodesSecond = [];
-let oscillatorTypes = [];
+let lfoNodes = [];
 
 masterGain.gain.value = 0.1;
 masterGain.connect(context.destination);
@@ -46,14 +49,6 @@ const changeMasterVolume = () => {
 
 volumeControl.addEventListener("change", changeMasterVolume, false);
 
-// function getPitchShift(sound, ) {
-//   const source = context.createBufferSource();
-//   source.buffer = sound;
-//   source.playbackRate.value = 2 ** ((noteToPlay - sampleNote) / 12);
-//   source.playbackRate.value = 2 ** ((noteToPlay - sampleNote) / 12);
-//   source.connect(context.destination);
-// }
-
 function getCombFilter(audioCtx) {
   const node = audioCtx.createGain();
   const lowPass = new BiquadFilterNode(audioCtx, {type: 'lowpass', frequency: 440});
@@ -61,7 +56,6 @@ function getCombFilter(audioCtx) {
   const gain = audioCtx.createGain();
   const wet = audioCtx.createGain();
   wet.gain.setValueAtTime(100, audioCtx.currentTime);
-
   gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
   node.connect(delay).connect(lowPass).connect(gain).connect(node);
 
@@ -71,6 +65,7 @@ function getCombFilter(audioCtx) {
 keyboard.keyDown = function (note, frequency) {
   let combFilter = getCombFilter(context);
   let compressor = context.createDynamicsCompressor();
+  
   compressor.attack.setValueAtTime(attack.value, context.currentTime);
   compressor.release.setValueAtTime(release.value, context.currentTime);
   compressor.knee.setValueAtTime(knee.value, context.currentTime);
@@ -122,18 +117,52 @@ keyboard.keyUp = function (note, frequency) {
   nodesSecond = new_second_nodes;
 };
 
+muteButton.addEventListener('click', () => {
+  muted = !muted;
+  if(muted) {
+    masterGain.gain.value = 0;
+    muteButton.innerText = 'Muted';
+  } else {
+    masterGain.gain.value = volumeControl.value;
+    muteButton.innerText = 'Mute';
+  }
+})
+
 lfoOnButton.addEventListener('click', () => {
   lfoOn = !lfoOn;
   let lfo = context.createOscillator();
+  lfo.type = lfoWaveType;
+  lfo.frequency.value = lfoRate.value;
+  lfo.connect(masterGain);
+
   if(lfoOn) {
-    lfo.type = lfoWaveType;
-    lfo.frequency.value = lfoRate.value;
-    lfo.connect(masterGain);
     lfo.start(0);
-    lfoOnButton.text = 'Lfo OFF';
+    nodes.push(lfo);
+    lfoOnButton.innerText = 'Lfo OFF';
   } else {
-    lfo.stop(0);
+    lfo.stop(context.currentTime + 1);
     lfo.disconnect();
-    lfoOnButton.text = 'Lfo ON';
+    lfoOnButton.innerText = 'Lfo ON';
+  }
+})
+
+whiteNoiseButton.addEventListener('click', () => {
+  whiteNoiseOn = !whiteNoiseOn;
+  let bufferSize = 2 * context.sampleRate;
+  let noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
+  let output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+
+  let whiteNoise = context.creat();
+  whiteNoise.buffer = noiseBuffer;
+  whiteNoise.loop = true;
+  whiteNoise.start(0);
+
+  if(whiteNoiseOn) {
+    whiteNoise.connect(context.destination);
+  } else {
+    whiteNoise.disconnect(context.destination);
   }
 })
