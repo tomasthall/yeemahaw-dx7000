@@ -17,6 +17,9 @@ let muteButton = document.querySelector('.muteButton');
 let lfoOnButton = document.querySelector('.lfoOn');
 let whiteNoiseButton = document.querySelector('.whiteNoiseButton');
 let pinkNoiseButton = document.querySelector('.pinkNoiseButton');
+let brownNoiseButton = document.querySelector('.brownNoiseButton');
+let panSliderFirstOscillator = document.querySelector("input[name='pannerFirst']");
+let panSliderSecondOscillator = document.querySelector("input[name='pannerSecond']");
 let muted = false;
 let lfoOn = false;
 let whiteNoiseOn = false;
@@ -65,6 +68,9 @@ function getCombFilter(audioCtx) {
 keyboard.keyDown = function (note, frequency) {
   let combFilter = getCombFilter(context);
   let compressor = context.createDynamicsCompressor();
+  let pannerFirst = context.createStereoPanner();
+  let pannerSecond = context.createStereoPanner();
+
   
   compressor.attack.setValueAtTime(attack.value, context.currentTime);
   compressor.release.setValueAtTime(release.value, context.currentTime);
@@ -72,19 +78,21 @@ keyboard.keyDown = function (note, frequency) {
   compressor.threshold.setValueAtTime(threshold.value, context.currentTime);
   compressor.ratio.setValueAtTime(ratio.value, context.currentTime);
 
+  pannerFirst.pan.setValueAtTime(panSliderFirstOscillator.value, context.currentTime);
+  pannerSecond.pan.setValueAtTime(panSliderSecondOscillator.value, context.currentTime);
 
   let oscillator = context.createOscillator();
   oscillator.type = wavePickerFirstOscillator.value;
   oscillator.detune.setValueAtTime(detuneFirstOscillator.value, context.currentTime);
   oscillator.frequency.value = frequency;
-  oscillator.connect(compressor).connect(combFilter).connect(masterGain);
+  oscillator.connect(compressor).connect(combFilter).connect(pannerFirst).connect(masterGain);
   oscillator.start(0);
 
   let oscillatorSecond = context.createOscillator();
   oscillatorSecond.type = wavePickerSecondOscillator.value;
   oscillatorSecond.detune.setValueAtTime(detuneSecondOscillator.value, context.currentTime);
   oscillatorSecond.frequency.value = frequency;
-  oscillatorSecond.connect(compressor).connect(combFilter).connect(masterGain);
+  oscillatorSecond.connect(compressor).connect(combFilter).connect(pannerSecond).connect(masterGain);
   oscillatorSecond.start(0);
 
   nodes.push(oscillator);
@@ -155,7 +163,31 @@ whiteNoiseButton.addEventListener('click', () => {
     output[i] = Math.random() * 2 - 1;
   }
 
-  let whiteNoise = context.creat();
+  let whiteNoise = context.createBufferSource();
+  whiteNoise.buffer = noiseBuffer;
+  whiteNoise.loop = whiteNoiseOn;
+  whiteNoise.start(0);
+  whiteNoiseButton.innerText = 'Off';
+
+  if(whiteNoiseOn) {
+    whiteNoise.connect(context.destination);
+  } else {
+    whiteNoiseButton.innerText = 'On';
+    whiteNoise.disconnect();
+  }
+  console.log(context);
+})
+
+brownNoiseButton.addEventListener('click', () => {
+  whiteNoiseOn = !whiteNoiseOn;
+  let bufferSize = 2 * context.sampleRate;
+  let noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
+  let output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+
+  let whiteNoise = context.createBufferSource();
   whiteNoise.buffer = noiseBuffer;
   whiteNoise.loop = true;
   whiteNoise.start(0);
@@ -163,6 +195,29 @@ whiteNoiseButton.addEventListener('click', () => {
   if(whiteNoiseOn) {
     whiteNoise.connect(context.destination);
   } else {
+    whiteNoise.stop(context.currentTime);
+    whiteNoise.disconnect(context.destination);
+  }
+})
+
+brownNoiseButton.addEventListener('click', () => {
+  whiteNoiseOn = !whiteNoiseOn;
+  let bufferSize = 2 * context.sampleRate;
+  let noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
+  let output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+
+  let whiteNoise = context.createBufferSource();
+  whiteNoise.buffer = noiseBuffer;
+  whiteNoise.loop = true;
+  whiteNoise.start(0);
+
+  if(whiteNoiseOn) {
+    whiteNoise.connect(context.destination);
+  } else {
+    whiteNoise.stop(context.currentTime);
     whiteNoise.disconnect(context.destination);
   }
 })
