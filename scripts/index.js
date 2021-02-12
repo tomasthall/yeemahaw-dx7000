@@ -5,6 +5,7 @@ let wavePickerSecondOscillator = document.querySelector("select[name='waveformSe
 let detuneFirstOscillator = document.querySelector("input[name='detuneFirstOscillator']");
 let detuneSecondOscillator = document.querySelector("input[name='detuneSecondOscillator']");
 let delayTime = document.querySelector("input[name='delayTime']");
+let wetGain = document.querySelector("input[name='wetGain']");
 let attack = document.querySelector("input[name='attack']");
 let release = document.querySelector("input[name='release']");
 let threshold = document.querySelector("input[name='threshold']");
@@ -21,7 +22,7 @@ let brownNoiseButton = document.querySelector('.brownNoiseButton');
 let panSliderFirstOscillator = document.querySelector("input[name='pannerFirst']");
 let panSliderSecondOscillator = document.querySelector("input[name='pannerSecond']");
 let muted = false;
-let lfoOn = false;
+// let lfoOn = false;
 let whiteNoiseOn = false;
 
 const context = new AudioContext(),
@@ -41,7 +42,7 @@ const context = new AudioContext(),
 let masterGain = context.createGain();
 let nodes = [];
 let nodesSecond = [];
-let lfoNodes = [];
+// let lfoNodes = [];
 
 masterGain.gain.value = 0.1;
 masterGain.connect(context.destination);
@@ -54,23 +55,29 @@ volumeControl.addEventListener("change", changeMasterVolume, false);
 
 function getCombFilter(audioCtx) {
   const node = audioCtx.createGain();
-  const lowPass = new BiquadFilterNode(audioCtx, {type: 'lowpass', frequency: 440});
+  const lowPass = new BiquadFilterNode(audioCtx, {type: 'lowpass', frequency: 440, detune: 1, gain: 200});
   const delay = new DelayNode(audioCtx, {delayTime: delayTime.value});
-  const gain = audioCtx.createGain();
   const wet = audioCtx.createGain();
-  wet.gain.setValueAtTime(100, audioCtx.currentTime);
-  gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
-  node.connect(delay).connect(lowPass).connect(gain).connect(node);
+  wet.gain.value = wetGain.value;
+  node.connect(delay).connect(lowPass).connect(wet).connect(node);
 
   return node;
 }
+
+
+let adsr = context.createGain();
+const form = {
+  attackTime: 0.1,
+  decayTime: 0.1,
+  sustainLevel: 0.1,
+  releaseTime: 1.0
+};
 
 keyboard.keyDown = function (note, frequency) {
   let combFilter = getCombFilter(context);
   let compressor = context.createDynamicsCompressor();
   let pannerFirst = context.createStereoPanner();
   let pannerSecond = context.createStereoPanner();
-
   
   compressor.attack.setValueAtTime(attack.value, context.currentTime);
   compressor.release.setValueAtTime(release.value, context.currentTime);
@@ -86,14 +93,17 @@ keyboard.keyDown = function (note, frequency) {
   oscillator.detune.setValueAtTime(detuneFirstOscillator.value, context.currentTime);
   oscillator.frequency.value = frequency;
   oscillator.connect(compressor).connect(combFilter).connect(pannerFirst).connect(masterGain);
-  oscillator.start(0);
+  oscillator.start(context.currentTime);
 
   let oscillatorSecond = context.createOscillator();
   oscillatorSecond.type = wavePickerSecondOscillator.value;
   oscillatorSecond.detune.setValueAtTime(detuneSecondOscillator.value, context.currentTime);
   oscillatorSecond.frequency.value = frequency;
   oscillatorSecond.connect(compressor).connect(combFilter).connect(pannerSecond).connect(masterGain);
-  oscillatorSecond.start(0);
+  oscillatorSecond.start(context.currentTime);
+
+  // adsr.gain.linearRampToValueAtTime(1, context.currentTime + form.attackTime);
+  // adsr.gain.setTargetAtTime(form.sustainLevel, context.currentTime + form.attackTime, form.decayTime);
 
   nodes.push(oscillator);
   nodesSecond.push(oscillatorSecond);
@@ -103,10 +113,17 @@ keyboard.keyUp = function (note, frequency) {
   let new_nodes = [];
   let new_second_nodes = [];
 
+  // adsr.gain.cancelScheduledValues(context.currentTime);
+  // adsr.gain.setValueAtTime(adsr.gain.value, context.currentTime);
+  // adsr.gain.setTargetAtTime(0, context.currentTime, form.releaseTime);
+
   for (let i = 0; i < nodes.length; i++) {
     if (Math.round(nodes[i].frequency.value) === Math.round(frequency)) {
-      nodes[i].stop(0);
-      nodes[i].disconnect();
+      
+        // if(adsr.gain.value < 0.01) {
+          nodes[i].stop(0);
+          nodes[i].disconnect();
+        // }
     } else {
       new_nodes.push(nodes[i]);
     }
@@ -114,8 +131,10 @@ keyboard.keyUp = function (note, frequency) {
 
   for (let i = 0; i < nodesSecond.length; i++) {
     if (Math.round(nodesSecond[i].frequency.value) === Math.round(frequency)) {
-      nodesSecond[i].stop(0);
-      nodesSecond[i].disconnect();
+        // if(adsr.gain.value < 0.01) {
+          nodesSecond[i].stop(0);
+          nodesSecond[i].disconnect();
+        // }
     } else {
       new_second_nodes.push(nodesSecond[i]);
     }
@@ -136,23 +155,23 @@ muteButton.addEventListener('click', () => {
   }
 })
 
-lfoOnButton.addEventListener('click', () => {
-  lfoOn = !lfoOn;
-  let lfo = context.createOscillator();
-  lfo.type = lfoWaveType;
-  lfo.frequency.value = lfoRate.value;
-  lfo.connect(masterGain);
+// lfoOnButton.addEventListener('click', () => {
+//   lfoOn = !lfoOn;
+//   let lfo = context.createOscillator();
+//   lfo.type = lfoWaveType;
+//   lfo.frequency.value = lfoRate.value;
+//   lfo.connect(masterGain);
 
-  if(lfoOn) {
-    lfo.start(0);
-    nodes.push(lfo);
-    lfoOnButton.innerText = 'Lfo OFF';
-  } else {
-    lfo.stop(context.currentTime + 1);
-    lfo.disconnect();
-    lfoOnButton.innerText = 'Lfo ON';
-  }
-})
+//   if(lfoOn) {
+//     lfo.start(0);
+//     nodes.push(lfo);
+//     lfoOnButton.innerText = 'Lfo OFF';
+//   } else {
+//     lfo.stop(context.currentTime + 1);
+//     lfo.disconnect();
+//     lfoOnButton.innerText = 'Lfo ON';
+//   }
+// })
 
 whiteNoiseButton.addEventListener('click', () => {
   whiteNoiseOn = !whiteNoiseOn;
