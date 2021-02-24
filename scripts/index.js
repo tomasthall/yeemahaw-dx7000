@@ -21,6 +21,7 @@ let pinkNoiseButton = document.querySelector('.pinkNoiseButton');
 let brownNoiseButton = document.querySelector('.brownNoiseButton');
 let panSliderFirstOscillator = document.querySelector("input[name='pannerFirst']");
 let panSliderSecondOscillator = document.querySelector("input[name='pannerSecond']");
+let filterType = document.querySelector("select[name='filterType']");
 let muted = false;
 // let lfoOn = false;
 let whiteNoiseOn = false;
@@ -54,12 +55,31 @@ const changeMasterVolume = () => {
 volumeControl.addEventListener("change", changeMasterVolume, false);
 
 function getCombFilter(audioCtx) {
+
+  var distortion = context.createWaveShaper();
+
+  function makeDistortionCurve(amount) {
+    var k = typeof amount === 'number' ? amount : 50,
+      n_samples = 44100,
+      curve = new Float32Array(n_samples),
+      deg = Math.PI / 180,
+      i = 0,
+      x;
+    for ( ; i < n_samples; ++i ) {
+      x = i * 2 / n_samples - 1;
+      curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
+    }
+    return curve;
+  };
+
+  distortion.curve = makeDistortionCurve(800);
+
   const node = audioCtx.createGain();
-  const lowPass = new BiquadFilterNode(audioCtx, {type: 'lowpass', frequency: 440, detune: 1, gain: 200});
+  const filter = new BiquadFilterNode(audioCtx, {type: filterType.value, frequency: 440, detune: 1, gain: 200});
   const delay = new DelayNode(audioCtx, {delayTime: delayTime.value});
   const wet = audioCtx.createGain();
   wet.gain.value = wetGain.value;
-  node.connect(delay).connect(lowPass).connect(wet).connect(node);
+  node.connect(delay).connect(distortion).connect(filter).connect(wet).connect(node);
 
   return node;
 }
@@ -92,14 +112,14 @@ keyboard.keyDown = function (note, frequency) {
   oscillator.type = wavePickerFirstOscillator.value;
   oscillator.detune.setValueAtTime(detuneFirstOscillator.value, context.currentTime);
   oscillator.frequency.value = frequency;
-  oscillator.connect(compressor).connect(combFilter).connect(pannerFirst).connect(masterGain);
+  oscillator.connect(combFilter).connect(pannerFirst).connect(compressor).connect(masterGain);
   oscillator.start(context.currentTime);
 
   let oscillatorSecond = context.createOscillator();
   oscillatorSecond.type = wavePickerSecondOscillator.value;
   oscillatorSecond.detune.setValueAtTime(detuneSecondOscillator.value, context.currentTime);
   oscillatorSecond.frequency.value = frequency;
-  oscillatorSecond.connect(compressor).connect(combFilter).connect(pannerSecond).connect(masterGain);
+  oscillatorSecond.connect(combFilter).connect(pannerSecond).connect(compressor).connect(masterGain);
   oscillatorSecond.start(context.currentTime);
 
   // adsr.gain.linearRampToValueAtTime(1, context.currentTime + form.attackTime);

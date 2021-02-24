@@ -15,7 +15,7 @@
           Volume
           <input type="range" min="0.0" max="1.0" step="0.01"
           value="0.1" name="volume">
-          <button class="muteButton">Mute</button>
+          <button class="muteButton button">Mute</button>
         </div>
         <div class="knobs__oscillators box">
           <div class="knobs__oscillators--first">
@@ -47,7 +47,7 @@
             </div>
           </div>
         </div>
-        <div class="box">
+        <!-- <div class="box">
           Noises
           <div>
             White Noise
@@ -67,80 +67,99 @@
               On
             </button>
           </div>
-        </div>
-        <div class="box">
+        </div> -->
+        <div>
+        <div class="box filter">
           Filter
-          <div>
+          <div class="filter__element">
             Delay time
             <input type="range" min="0.0" max="1.0" step="0.1"
             value="0.0" name="delayTime">
           </div>
-          <div>
+          <div class="filter__element">
             Delay volume
             <input type="range" min="0.0" max="0.7" step="0.05"
             value="0.0" name="wetGain">
           </div>
-          <div>
-
+          <div class="filter__element">
+              Filter type
+              <select name="filterType">
+                <option value="lowpass">lowpass</option>
+                <option value="highpass">highpass</option>
+                <option value="bandpass">bandpass</option>
+                <option value="notch">notch</option>
+                <option value="allpass">allpass</option>
+              </select>
           </div>
         </div>
-        
-        <div class="box">
-          Compressor
-          <div>
-            Attack
-            <input type="range" min="0.0" max="1.0" step="0.05"
-            value="0.1" name="attack">
+        <div class="box lfo">
+          <div class="lfo__title">
+            LFO
           </div>
-          <div>
-            Release
-            <input type="range" min="0.0" max="1.0" step="0.05"
-            value="0.1" name="release">
-          </div>
-          <div>
-            Threshold
-            <input type="range" min="-100" max="0" step="1"
-            value="-24" name="threshold">
-          </div>
-          <div>
-            Ratio
-            <input type="range" min="1" max="20" step="1"
-            value="12" name="ratio">
-          </div>
-          <div>
-            Reduction
-            <input type="range" min="-20" max="0" step="0.05"
-            value="0" name="reduction">
-          </div>
-          <div>
-            Knee
-            <input type="range" min="0" max="40" step="1"
-            value="30" name="knee">
-          </div>
-        </div>
-        <div class="box">
-          Pan first oscillator
-          <input type="range" min="-1" max="1" step="0.1"
-          value="0" name="pannerFirst">
-        </div>
-        <div class="box">
-          Pan second oscillator
-          <input type="range" min="-1" max="1" step="0.1"
-          value="0" name="pannerSecond">
-        </div>
-        <div class="box">
-          LFO
-          <div>
-            Wave form LFO
+          <div class="lfo__wave">
+            <div>Wave form LFO</div>
             <select name="lfoWaveType">
               <option value="sine">Sine</option>
               <option value="square" selected>Square</option>
               <option value="sawtooth">Sawtooth</option>
               <option value="triangle">Triangle</option>
             </select>
-            <input name="lfoRate" type="range" min="20" max="40" value="30" step="1" />
           </div>
-          <button class="lfoOn">Lfo ON</button>
+            <div class="lfo__gain">
+              <div>LFO Gain</div>
+              <div>
+                <input name="lfoRate" type="range" min="20" max="40" value="30" step="1" />
+              </div>
+            </div>
+            <button class="lfoOn button">Lfo ON</button>
+          </div>
+        </div>
+
+
+        <div>
+          <div class="box compressor">
+            Compressor
+            <div class="compressor__element">
+              Attack
+              <input type="range" min="0.0" max="1.0" step="0.05"
+              value="0.1" name="attack">
+            </div>
+            <div class="compressor__element">
+              Release
+              <input type="range" min="0.0" max="1.0" step="0.05"
+              value="0.1" name="release">
+            </div>
+            <div class="compressor__element">
+              Threshold
+              <input type="range" min="-100" max="0" step="1"
+              value="-24" name="threshold">
+            </div>
+            <div class="compressor__element">
+              Ratio
+              <input type="range" min="1" max="20" step="1"
+              value="12" name="ratio">
+            </div>
+            <div class="compressor__element">
+              Reduction
+              <input type="range" min="-20" max="0" step="0.05"
+              value="0" name="reduction">
+            </div>
+            <div class="compressor__element">
+              Knee
+              <input type="range" min="0" max="40" step="1"
+              value="30" name="knee">
+            </div>
+          </div>
+          <div class="box pan">
+            Pan first oscillator
+            <input type="range" min="-1" max="1" step="0.1"
+            value="0" name="pannerFirst">
+          </div>
+          <div class="box pan">
+            Pan second oscillator
+            <input type="range" min="-1" max="1" step="0.1"
+            value="0" name="pannerSecond">
+          </div>
         </div>
       </div>
       
