@@ -43,7 +43,6 @@ const context = new AudioContext(),
 let masterGain = context.createGain();
 let nodes = [];
 let nodesSecond = [];
-// let lfoNodes = [];
 
 masterGain.gain.value = 0.1;
 masterGain.connect(context.destination);
@@ -55,43 +54,15 @@ const changeMasterVolume = () => {
 volumeControl.addEventListener("change", changeMasterVolume, false);
 
 function getCombFilter(audioCtx) {
-
-  var distortion = context.createWaveShaper();
-
-  function makeDistortionCurve(amount) {
-    var k = typeof amount === 'number' ? amount : 50,
-      n_samples = 44100,
-      curve = new Float32Array(n_samples),
-      deg = Math.PI / 180,
-      i = 0,
-      x;
-    for ( ; i < n_samples; ++i ) {
-      x = i * 2 / n_samples - 1;
-      curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
-    }
-    return curve;
-  };
-
-  distortion.curve = makeDistortionCurve(800);
-
   const node = audioCtx.createGain();
   const filter = new BiquadFilterNode(audioCtx, {type: filterType.value, frequency: 440, detune: 1, gain: 200});
   const delay = new DelayNode(audioCtx, {delayTime: delayTime.value});
   const wet = audioCtx.createGain();
   wet.gain.value = wetGain.value;
-  node.connect(delay).connect(distortion).connect(filter).connect(wet).connect(node);
+  node.connect(delay).connect(filter).connect(wet).connect(node);
 
   return node;
 }
-
-
-let adsr = context.createGain();
-const form = {
-  attackTime: 0.1,
-  decayTime: 0.1,
-  sustainLevel: 0.1,
-  releaseTime: 1.0
-};
 
 keyboard.keyDown = function (note, frequency) {
   let combFilter = getCombFilter(context);
@@ -122,9 +93,6 @@ keyboard.keyDown = function (note, frequency) {
   oscillatorSecond.connect(combFilter).connect(pannerSecond).connect(compressor).connect(masterGain);
   oscillatorSecond.start(context.currentTime);
 
-  // adsr.gain.linearRampToValueAtTime(1, context.currentTime + form.attackTime);
-  // adsr.gain.setTargetAtTime(form.sustainLevel, context.currentTime + form.attackTime, form.decayTime);
-
   nodes.push(oscillator);
   nodesSecond.push(oscillatorSecond);
 };
@@ -133,17 +101,10 @@ keyboard.keyUp = function (note, frequency) {
   let new_nodes = [];
   let new_second_nodes = [];
 
-  // adsr.gain.cancelScheduledValues(context.currentTime);
-  // adsr.gain.setValueAtTime(adsr.gain.value, context.currentTime);
-  // adsr.gain.setTargetAtTime(0, context.currentTime, form.releaseTime);
-
   for (let i = 0; i < nodes.length; i++) {
     if (Math.round(nodes[i].frequency.value) === Math.round(frequency)) {
-      
-        // if(adsr.gain.value < 0.01) {
-          nodes[i].stop(0);
-          nodes[i].disconnect();
-        // }
+        nodes[i].stop(0);
+        nodes[i].disconnect();
     } else {
       new_nodes.push(nodes[i]);
     }
@@ -151,10 +112,8 @@ keyboard.keyUp = function (note, frequency) {
 
   for (let i = 0; i < nodesSecond.length; i++) {
     if (Math.round(nodesSecond[i].frequency.value) === Math.round(frequency)) {
-        // if(adsr.gain.value < 0.01) {
-          nodesSecond[i].stop(0);
-          nodesSecond[i].disconnect();
-        // }
+        nodesSecond[i].stop(0);
+        nodesSecond[i].disconnect();
     } else {
       new_second_nodes.push(nodesSecond[i]);
     }
@@ -192,71 +151,3 @@ muteButton.addEventListener('click', () => {
 //     lfoOnButton.innerText = 'Lfo ON';
 //   }
 // })
-
-whiteNoiseButton.addEventListener('click', () => {
-  whiteNoiseOn = !whiteNoiseOn;
-  let bufferSize = 2 * context.sampleRate;
-  let noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
-  let output = noiseBuffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    output[i] = Math.random() * 2 - 1;
-  }
-
-  let whiteNoise = context.createBufferSource();
-  whiteNoise.buffer = noiseBuffer;
-  whiteNoise.loop = whiteNoiseOn;
-  whiteNoise.start(0);
-  whiteNoiseButton.innerText = 'Off';
-
-  if(whiteNoiseOn) {
-    whiteNoise.connect(context.destination);
-  } else {
-    whiteNoiseButton.innerText = 'On';
-    whiteNoise.disconnect();
-  }
-  console.log(context);
-})
-
-brownNoiseButton.addEventListener('click', () => {
-  whiteNoiseOn = !whiteNoiseOn;
-  let bufferSize = 2 * context.sampleRate;
-  let noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
-  let output = noiseBuffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    output[i] = Math.random() * 2 - 1;
-  }
-
-  let whiteNoise = context.createBufferSource();
-  whiteNoise.buffer = noiseBuffer;
-  whiteNoise.loop = true;
-  whiteNoise.start(0);
-
-  if(whiteNoiseOn) {
-    whiteNoise.connect(context.destination);
-  } else {
-    whiteNoise.stop(context.currentTime);
-    whiteNoise.disconnect(context.destination);
-  }
-})
-
-brownNoiseButton.addEventListener('click', () => {
-  whiteNoiseOn = !whiteNoiseOn;
-  let bufferSize = 2 * context.sampleRate;
-  let noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
-  let output = noiseBuffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    output[i] = Math.random() * 2 - 1;
-  }
-
-  let whiteNoise = context.createBufferSource();
-  whiteNoise.buffer = noiseBuffer;
-  whiteNoise.loop = true;
-  whiteNoise.start(0);
-
-  if(whiteNoiseOn) {
-    whiteNoise.connect(context.destination);
-  } else {
-    whiteNoise.stop(context.currentTime);
-    whiteNoise.disconnect(context.destination);
-  }
-})
